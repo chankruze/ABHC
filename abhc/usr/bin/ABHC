@@ -1,0 +1,47 @@
+#!/bin/bash
+clear
+echo "================================"
+echo " █████╗ ██████╗ ██╗  ██╗ ██████╗"
+echo "██╔══██╗██╔══██╗██║  ██║██╔════╝"
+echo "███████║██████╔╝███████║██║     "
+echo "██╔══██║██╔══██╗██╔══██║██║     "
+echo "██║  ██║██████╔╝██║  ██║╚██████╗"
+echo "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝"
+echo "================================"
+echo "  ASUS Battery Health Charging  "
+echo "================================"
+echo ""
+
+cat ABHC.config
+
+echo ""
+
+while true
+    do
+        export DISPLAY=:0.0
+        ac_adapter=$(acpitool -a | cut -d' ' -f10)
+        battery_level=$(acpitool -B | grep 'Remaining capacity' | cut -d' ' -f9 | cut -d. -f1)
+        start_threshold=$(cat ABHC.config | grep 'start_threshold' | cut -d: -f2)
+        stop_threshold=$(cat ABHC.config | grep 'stop_threshold' | cut -d: -f2)
+
+        if [ $battery_level -ge $stop_threshold ]; then
+            notify-send "Battery charging above ${stop_threshold}%. Please unplug your AC adapter!" "Battery Level: ${battery_level}%"
+            sleep 60
+            while [ "$ac_adapter" != "off-line" ]
+                do
+                    notify-send -u critical "Sasura AC Adapter Nikalo !"
+                    ac_adapter=$(acpitool -a | cut -d' ' -f10)
+                done
+        else
+            if [ $battery_level -le $start_threshold ]; then
+                notify-send "Battery is lower ${start_threshold}%. Need to charging! Please plug your AC adapter." "Battery Level: ${battery_level}%"
+                sleep 60
+                while [ "$ac_adapter" = "off-line" ]
+                    do
+                        notify-send -u critical "Re Bhosdiwala AC Adapter Laga !"
+                        ac_adapter=$(acpitool -a | cut -d' ' -f10)
+                    done
+            fi
+        fi
+        sleep 900
+    done

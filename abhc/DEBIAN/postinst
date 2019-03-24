@@ -1,0 +1,8 @@
+chmod a+x /usr/local/bin/ABHC
+touch ABHC.config
+echo ################## >> ABHC.config
+echo # DEFAULT CONFIG # >> ABHC.config
+echo ################## >> ABHC.config
+echo start_threshold:30 >> ABHC.config
+echo stop_threshold:80 >> ABHC.config
+ABHC &
